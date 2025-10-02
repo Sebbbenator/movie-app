@@ -1,139 +1,146 @@
-"use strict";
-// ========== MOVIE OBJECTS ==========
+// #0: Listen for page load
+window.addEventListener("load", initApp);
 
-// Movie 1: Barbie
-const barbieMovie = {
-  id: 1,
-  title: "Barbie",
-  year: 2023,
-  genre: ["Adventure", "Comedy", "Fantasy"],
-  rating: 7.0,
-  director: "Greta Gerwig",
-  image:
-    "https://upload.wikimedia.org/wikipedia/en/0/0b/Barbie_2023_poster.jpg",
-  actors: ["Margot Robbie", "Ryan Gosling", "America Ferrera"],
-  description:
-    "Barbie and Ken embark on a journey of self-discovery after leaving the utopian Barbie Land for the real world.",
-};
+let allMovies = []; // Global array to hold all movies
 
-console.log("Barbie movie object:", barbieMovie);
+// #1: Initialize the app
+function initApp() {
+  console.log("initApp: app.js is running 🎉");
+  getMovies();
+  document.querySelector("#search-input").addEventListener("input", filterMovies);
+  document.querySelector("#genre-select").addEventListener("change", filterMovies);
+  document.querySelector("#sort-select").addEventListener("change", filterMovies);
+}
 
-// Movie 2: Dune
-const duneMovie = {
-  id: 2,
-  title: "Dune",
-  year: 2021,
-  genre: ["Adventure", "Drama", "Sci-Fi"],
-  rating: 8.0,
-  director: "Denis Villeneuve",
-  image:
-    "https://upload.wikimedia.org/wikipedia/en/8/8e/Dune_%282021_film%29.jpg",
-  actors: ["Timothée Chalamet", "Rebecca Ferguson", "Oscar Isaac"],
-  description:
-    "Paul Atreides leads nomadic tribes in a battle to control the desert planet Arrakis and its valuable spice.",
-};
+// #2: Fetch movies from JSON and display them
+async function getMovies() {
+  const response = await fetch("https://raw.githubusercontent.com/cederdorff/race/refs/heads/master/data/movies.json");
+  allMovies = await response.json();
+  populateGenreDropdown(); // Udfyld dropdown med genres
+  displayMovies(allMovies);
+}
 
-console.log("Dune movie object:", duneMovie);
+// #3: Render all movies in the grid
+function displayMovies(movies) {
+  console.log(`🎬 Viser ${movies.length} movies`);
+  // Nulstil #movie-list HTML'en
+  document.querySelector("#movie-list").innerHTML = "";
+  // Gennemløb alle movies og kør displayMovie-funktionen for hver movie
+  for (const movie of movies) {
+    displayMovie(movie);
+  }
+}
 
-// Movie 3: Dune: Part Two
-const duneTwoMovie = {
-  id: 3,
-  title: "Dune: Part Two",
-  year: 2024,
-  genre: ["Action", "Adventure", "Drama"],
-  rating: 8.7,
-  director: "Denis Villeneuve",
-  image:
-    "https://m.media-amazon.com/images/M/MV5BNTc0YmQxMjEtODI5MC00NjFiLTlkMWUtOGQ5NjFmYWUyZGJhXkEyXkFqcGc@._V1_.jpg",
-  actors: ["Timothée Chalamet", "Zendaya", "Rebecca Ferguson"],
-  description:
-    "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.",
-};
+// #4: Render a single movie card
+function displayMovie(movie) {
+  const movieList = document.querySelector("#movie-list");
 
-console.log("Dune: Part Two movie object:", duneTwoMovie);
+  const movieHTML = `
+    <article class="movie-card" tabindex="0">
+      <img src="${movie.image}" 
+           alt="Poster of ${movie.title}" 
+           class="movie-poster" />
+      <div class="movie-info">
+        <h3>${movie.title} <span class="movie-year">(${movie.year})</span></h3>
+        <p class="movie-genre">${movie.genre.join(", ")}</p>
+        <p class="movie-rating">⭐ ${movie.rating}</p>
+        <p class="movie-director"><strong>Director:</strong> ${
+          movie.director
+        }</p>
+      </div>
+    </article>
+  `;
 
-// Movie 4: Everything Everywhere All at Once
-const everythingEverywhereAllatOnce = {
-  id: 4, // Unikt nummer for filmen
-  title: "Everything Everywhere All at Once",
-  year: 2022, // Number, ikke string!
-  genre: ["Action", "Adventure", "Comedy"],
-  rating: 7.8,
-  director: ["Daniel Kwan", "Daniel Scheinert"],
-  image:
-    "https://m.media-amazon.com/images/M/MV5BOWNmMzAzZmQtNDQ1NC00Nzk5LTkyMmUtNGI2N2NkOWM4MzEyXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
-  actors: ["Michelle Yeoh", "Stephanie Hsu", "Ke Huy Quan"],
-  description:
-    "An aging Chinese immigrant is swept up in an insane adventure, where she alone can save the world by exploring other universes.",
-};
+  movieList.insertAdjacentHTML("beforeend", movieHTML);
 
-console.log(
-  "Everything Everywhere All at Once:",
-  everythingEverywhereAllatOnce
-);
+  // Tilføj click event til den nye card
+  const newCard = movieList.lastElementChild;
 
-// Movie 5: Fight Club
-const fightClub = {
-  id: 5,
-  title: "Fight Club",
-  year: 1999,
-  genre: ["Drama"],
-  rating: 8.8,
-  director: "David Fincher",
-  image: "https://m.media-amazon.com/images/I/51v5ZpFyaFL._AC_.jpg",
-  actors: ["Brad Pitt", "Edward Norton", "Helena Bonham Carter"],
-  description:
-    "An insomniac office worker and a soap maker form an underground fight club that evolves into something much more.",
-};
+  newCard.addEventListener("click", function () {
+    console.log(`🎬 Klik på: "${movie.title}"`);
+    showMovieDetails(movie);
+  });
+}
 
-console.log("Fight Club:", fightClub);
 
-// Movie 6: Forrest Gump
-const forrestGump = {
-  id: 6,
-  title: "Forrest Gump",
-  year: 1994,
-  rating: 8.8,
-  director: "Robert Zemeckis",
-  image:
-    "https://upload.wikimedia.org/wikipedia/en/6/67/Forrest_Gump_poster.jpg",
-  actors: ["Tom Hanks", "Robin Wright", "Gary Sinise"],
-  genre: ["Drama", "Romance"],
-  description:
-    "The presidencies of Kennedy and Johnson, the Vietnam War, and other historical events unfold from the perspective of an Alabama man with an IQ of 75.",
-};
+// #5: Kombineret søgning, genre og sortering
+function filterMovies() {
+  const searchValue = document.querySelector("#search-input").value.toLowerCase();
+  const genreValue = document.querySelector("#genre-select").value;
+  const sortValue = document.querySelector("#sort-select").value;
 
-console.log("Forrest Gump:", forrestGump);
+  // Start med alle movies
+  let filteredMovies = allMovies;
 
-// Movie 7: Goodfellas
-const goodFellas = {
-  id: 7,
-  title: "Goodfellas",
-  year: 1990,
-  genre: ["Biography", "Crime", "Drama"],
-  rating: 8.7,
-  director: "Martin Scorsese",
-  image: "https://upload.wikimedia.org/wikipedia/en/7/7b/Goodfellas.jpg",
-  actors: ["Robert De Niro", "Ray Liotta", "Joe Pesci"],
-  description:
-    "The story of Henry Hill and his life in the mob, covering his relationship with his wife Karen Hill and his mob partners Jimmy Conway and Tommy DeVito in the Italian-American crime syndicate.",
-};
+  // TRIN 1: Filtrer på søgetekst
+  if (searchValue) {
+    filteredMovies = filteredMovies.filter(movie => {
+      return movie.title.toLowerCase().includes(searchValue);
+    });
+  }
 
-console.log("Goodfellas:", goodFellas);
+  // TRIN 2: Filtrer på genre
+  if (genreValue !== "all") {
+    filteredMovies = filteredMovies.filter(movie => {
+      return movie.genre.includes(genreValue);
+    });
+  }
 
-// Movie 8: Inception
-const inception = {
-  id: 8,
-  title: "Inception",
-  year: 2010,
-  rating: 8.8,
-  director: "Christopher Nolan",
-  image:
-    "https://m.media-amazon.com/images/M/MV5BMjExMjkwNTQ0Nl5BMl5BanBnXkFtZTcwNTY0OTk1Mw@@._V1_.jpg",
-  actors: ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Ellen Page"],
-  description:
-    "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
-  genre: ["Action", "Adventure", "Sci-Fi"],
-};
+  // TRIN 3: Sorter resultater
+  if (sortValue === "title") {
+    filteredMovies.sort((a, b) => a.title.localeCompare(b.title));
+  } else if (sortValue === "year") {
+    filteredMovies.sort((a, b) => b.year - a.year); // Nyeste først
+  } else if (sortValue === "rating") {
+    filteredMovies.sort((a, b) => b.rating - a.rating); // Højeste først
+  }
 
-console.log("Inception:", inception);
+  displayMovies(filteredMovies);
+}
+
+// #6: Udfyld genre-dropdown med alle unikke genrer
+function populateGenreDropdown() {
+  const genreSelect = document.querySelector("#genre-select");
+  const genres = new Set();
+
+  for (const movie of allMovies) {
+    for (const genre of movie.genre) {
+      genres.add(genre);
+    }
+  }
+
+  // Fjern gamle options undtagen 'Alle genrer'
+  genreSelect.innerHTML = '<option value="all">Alle genrer</option>';
+
+  const sortedGenres = Array.from(genres).sort();
+  for (const genre of sortedGenres) {
+    genreSelect.insertAdjacentHTML("beforeend", `<option value="${genre}">${genre}</option>`);
+  }
+}
+
+
+// #6: Vis movie detaljer (midlertidig løsning med alert)
+function showMovieDetails(movie) {
+  console.log("📊 Viser detaljer for:", movie.title);
+
+  // Vis i alert (midlertidig løsning)
+  const movieInfo = `🎬 ${movie.title} (${movie.year})
+🎭 ${movie.genre.join(", ")}
+⭐ Rating: ${movie.rating}
+🎯 Instruktør: ${movie.director}
+👥 Skuespillere: ${movie.actors.join(", ")}
+
+📝 ${movie.description}`;
+
+  alert(movieInfo);
+
+  // TODO: Næste gang laver vi modal dialog!
+}
+
+// Tilføj også keyboard event til displayMovie:
+newCard.addEventListener("keydown", function (event) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    showMovieDetails(movie);
+  }
+});
