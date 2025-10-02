@@ -60,6 +60,14 @@ function displayMovie(movie) {
     console.log(`🎬 Klik på: "${movie.title}"`);
     showMovieDetails(movie);
   });
+
+  // Tilføj også keyboard event til displayMovie:
+  newCard.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      showMovieDetails(movie);
+    }
+  });
 }
 
 
@@ -137,10 +145,3 @@ function showMovieDetails(movie) {
   // TODO: Næste gang laver vi modal dialog!
 }
 
-// Tilføj også keyboard event til displayMovie:
-newCard.addEventListener("keydown", function (event) {
-  if (event.key === "Enter" || event.key === " ") {
-    event.preventDefault();
-    showMovieDetails(movie);
-  }
-});
